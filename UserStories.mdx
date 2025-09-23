@@ -1,0 +1,83 @@
+# 📚 Personal Library App – User Stories & Schema
+
+This document describes the user stories and database schema for the personal library MERN app.  
+The app will support **different user roles** with distinct permissions.  
+
+---
+
+## 🎭 Roles
+
+- **Admin**
+  - Can add new books to the library
+  - Can update or delete existing books
+  - Can view all lending activity
+- **User**
+  - Can browse available books
+  - Can borrow books
+  - Can view **only their borrowed books** (with due dates)
+  - Can return borrowed books
+
+---
+
+## ✅ User Stories (with Checkboxes)
+
+### Admin
+
+- [ ] **Add Books**  
+  As an **Admin**, I want to add new books to the library so that users can borrow them.  
+  - [ ] Title, Author, Genre, Year, and Copies Available are required fields.  
+  - [ ] The system validates required fields before saving.  
+
+- [ ] **Manage Books**  
+  As an **Admin**, I want to edit or delete books so that the library stays accurate.  
+  - [ ] Only Admins see edit/delete options.  
+  - [ ] A deleted book cannot be borrowed anymore.  
+
+- [ ] **View Lending Activity**  
+  As an **Admin**, I want to see a list of all borrowed books so that I know who has which book.  
+  - [ ] List shows User, Book Title, Borrow Date, and Due Date.  
+
+---
+
+### Normal User
+
+- [ ] **Browse Available Books**  
+  As a **User**, I want to see all available books so that I can choose one to borrow.  
+  - [ ] Only books with copies available are shown as “borrowable.”  
+  - [ ] Books with 0 copies available show as “unavailable.”  
+
+- [ ] **Borrow Book**  
+  As a **User**, I want to borrow a book so that I can read it.  
+  - [ ] Borrowing reduces available copies by 1.  
+  - [ ] System records Borrow Date and calculates Due Date (e.g., 14 days from borrow).  
+
+- [ ] **View Borrowed Books**  
+  As a **User**, I want to see a list of only the books I borrowed so that I know what I need to return.  
+  - [ ] List includes Title, Author, Borrow Date, and Due Date.  
+  - [ ] Option to mark a book as “Returned.”  
+
+---
+
+## 🚀 Future Enhancements
+
+- [ ] **Authentication** (JWT-based login system to identify Admin vs User)  
+- [ ] **Notifications** (email or in-app reminders for due dates)  
+- [ ] **Search & Filtering** (search by title, author, genre; filter available vs borrowed)  
+- [ ] **History Tracking** (log of all borrow/return activity per user)  
+- [ ] **Multiple Roles** (e.g., `Librarian` role that can manage lending but not add books)  
+
+---
+
+## 🗄️ Database Schema (Mongoose Models)
+
+### **User Model**
+```js
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }, // hashed
+  role: { type: String, enum: ["admin", "user"], default: "user" }
+}, { timestamps: true });
+
+module.exports = mongoose.model("User", userSchema);
