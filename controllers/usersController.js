@@ -1,10 +1,10 @@
 const User = require('../models/User');
 const Book = require('../models/Book');
-const borrowSchema = require('../models/borrowSchema');
+const BorrowedBooks = require('../models/BorrowedBooks');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 
-// @desc Get all sers
+// @desc Get all users
 // @route GET /users
 // @access Private
 const getAllUsers = asyncHandler(async (req, res) => {
@@ -98,7 +98,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'User ID Required'})
     }
 
-    const borrowedBook = await borrowSchema.findOne({ user: id }).lean().exec(); 
+    const borrowedBook = await BorrowedBooks.findOne({ user: id }).lean().exec(); 
     if (borrowedBook) {
         return res.status(400).json({ message: 'User has borrowed books and cannot be deleted'});
     }
@@ -110,7 +110,8 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 
     const result = await user.deleteOne();
-    const reply = `Username ${result.username} with ID ${result._id} deleted`;
+    const reply = `Username ${user.username} with ID ${user._id} deleted`;
+    res.json({ message: reply });
 })
 
 module.exports = {
