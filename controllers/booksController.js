@@ -1,23 +1,24 @@
 const Book = require('../models/Book');
 const User = require('../models/User');
 const BorrowedBooks = require('../models/BorrowedBooks');
+const asyncHandler = require('express-async-handler');
 
 // @desc Get all books
 // @route GET /books
 // @access Private
-const getAllBooks = async (req, res) => {
+const getAllBooks = asyncHandler(async (req, res) => {
     const books = await Book.find().lean();
     if (!books?.length) {
         return res.status(400).json({ message: 'No books found'});
     }
 
     res.json(books);
-}
+});
 
 // @desc Create new book
 // @route POST /books
 // @access Private
-const createNewBook = async (req, res) => {
+const createNewBook = asyncHandler(async (req, res) => {
     const { title, author, genre, isbn, publishedYear, copiesAvailable } = req.body;
 
     // Confirm data
@@ -37,13 +38,13 @@ const createNewBook = async (req, res) => {
         res.status(400).json({ message: 'Invalid book data received'});
     }
 
-}
+});
 
 // @esc Update a book
 // @route PATCH /books
 // @access Private
 
-const updateBook = async (req, res) => {
+const updateBook = asyncHandler(async (req, res) => {
     const { id, title, author, isbn, genre, publishedYear, copiesAvailable } = req.body;
 
     // Confirm data
@@ -70,14 +71,14 @@ const updateBook = async (req, res) => {
     book.publishedYear = publishedYear;
     book.copiesAvailable = copiesAvailable;
 
-    const updateBook = await book.save();
-    res.json({ message: `${updateBook.title} updated` });
-}
+    const updatedBook = await book.save();
+    res.json({ message: `${updatedBook.title} updated` });
+});
 
 // @desc Delete a book
 // @route DELETE /books
 // @access Private
-const deleteBook = async (req, res) => {
+const deleteBook = asyncHandler(async (req, res) => {
     const { id } = req.body;
 
     if (!id) {
@@ -100,7 +101,7 @@ const deleteBook = async (req, res) => {
     const reply = `Book ${book.title} with ID ${book._id} deleted ${result.deletedCount}`;
 
     res.json({ message: reply });
-}
+});
 
 module.exports = {
     getAllBooks,
