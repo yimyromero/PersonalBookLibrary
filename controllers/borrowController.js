@@ -1,5 +1,7 @@
 const BorrowedBook = require('../models/BorrowedBooks');
+const Book = require('../models/Book')
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 
 // @desc Get all borrowed books lists
 // @route get /borrowed
@@ -32,16 +34,31 @@ const createNewBorrowedBook = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Book not available' });
     }
 
-    // Create the borrowed book record
-    const borrowedBookRecord = await BorrowedBook.create({ user, book, borrowedDate, dueDate });
-    if (borrowedBookRecord) {
-        // Decrease the available copies of the book
-        bookRecord.copiesAvailable -= 1;
-        await bookRecord.save();
+    // Create transaction to save the borrowed book record and decrement the book copies available
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-        res.status(201).json({ message: `Book borrowed successfully`});
-    } else {
-        res.status(400).json({ message: 'Invalid data received'});
+    try {
+        const borrowedBookRecord = await BorrowedBook.create([{ user, book, borrowedDate, dueDate }], { session });
+        if (!borrowedBookRecord) {
+            throw new Error('Failed to create borrowed book record');
+        }
+
+        bookRecord.copiesAvailable -= 1;
+        await bookRecord.save({ session });
+
+        await session.commitTransaction();
+        res.status(201).json({ message: `Book borrowed successfully` });
+    } catch (error) {
+        await session.abortTransaction();
+        res.status(400).json({ message: 'Invalid data received' });
+    } finally {
+        session.endSession();
     }
 
 });
+
+module.exports = {
+    getAllBorrowedBooks,
+    createNewBorrowedBook
+}
