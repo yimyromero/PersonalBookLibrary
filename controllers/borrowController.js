@@ -1,4 +1,4 @@
-const BorrowedBook = require('../models/BorrowedBooks');
+const BorrowedBooks = require('../models/BorrowedBooks');
 const Book = require('../models/Book')
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
@@ -8,12 +8,12 @@ const mongoose = require('mongoose');
 // @access Private
 const getAllBorrowedBooks = asyncHandler(async (requestAnimationFrame, res) => {
 
-    const borrowedBooks = await BorrowedBook.find().lean();
-    if (!borrowedBooks?.length) {
+    const BorrowedBookRecords = await BorrowedBooks.find().lean();
+    if (!BorrowedBookRecords?.length) {
         return res.status(400).json({ message: 'No borrowed books found'});
     }
 
-    res.json(borrowedBooks);
+    res.json(BorrowedBookRecords);
 });
 
 // @desc Create new borrowed book record
@@ -39,7 +39,7 @@ const createNewBorrowedBook = asyncHandler(async (req, res) => {
     session.startTransaction();
 
     try {
-        const borrowedBookRecord = await BorrowedBook.create([{ user, book, borrowedDate, dueDate }], { session });
+        const borrowedBookRecord = await BorrowedBooks.create([{ user, book, borrowedDate, dueDate }], { session });
         if (!borrowedBookRecord) {
             throw new Error('Failed to create borrowed book record');
         }
@@ -58,7 +58,57 @@ const createNewBorrowedBook = asyncHandler(async (req, res) => {
 
 });
 
+// @desc Update borrowed book record
+// @route PATCH /borrowed
+// @access Private
+
+const updateBorrowedBook = asyncHandler(async (req, res) => {
+    const { id, user, book, dueDate, returnDate, status } = res.body;
+
+    if (!id || !user || !book || !dueDate || !returnDate || !status ) {
+        return res.status(400).json({ message: 'Provide all required fields'});
+    }
+
+    const borrowedRecord = await BorrowedBooks.findById(id).exec();
+    if (!borrowedRecord) {
+        return res.status(400).json({ message: 'Book not found' });
+    }
+
+    borrowedRecord.user = user;
+    borrowedRecord.book = book;
+    borrowedRecord.dueDate = dueDate;
+    borrowedRecord.returnDate = returnDate;
+    borrowedRecord.status = status;
+
+    const updateBorrowedRecord = await borrowedRecord.save();
+    res.json({ message: `${updateBorrowedRecord.id} udpated`});
+});
+
+// @desc Delete a borrowed book record
+// @route DELETE /borrowed
+// @access Private
+
+const deleteBorrowedBook = asyncHandler(async (req, res) => {
+    const { id } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ message: 'Borrowed record ID required' });
+    }
+
+    const borrowedRecord = await BorrowedBooks.findById(id).exec();
+    if (!borrowedRecord) {
+        return res.status(400).json({ message: 'Record not found' });
+    }
+
+    const result = await borrowedRecord.deleteOne();
+    const reply = `Borrowed record with ID ${borrowedRecord.id} has been deleted`;
+
+    res.json({ message: reply });
+});
+
 module.exports = {
     getAllBorrowedBooks,
-    createNewBorrowedBook
+    createNewBorrowedBook,
+    updateBorrowedBook,
+    deleteBorrowedBook
 }
