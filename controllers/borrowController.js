@@ -63,7 +63,7 @@ const createNewBorrowedBook = asyncHandler(async (req, res) => {
 // @access Private
 
 const updateBorrowedBook = asyncHandler(async (req, res) => {
-    const { id, user, book, dueDate, returnDate, status } = res.body;
+    const { id, user, book, dueDate, returnDate, status } = req.body;
 
     if (!id || !user || !book || !dueDate || !returnDate || !status ) {
         return res.status(400).json({ message: 'Provide all required fields'});
