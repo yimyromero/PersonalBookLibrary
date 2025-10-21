@@ -6,9 +6,12 @@ const mongoose = require('mongoose');
 // @desc Get all borrowed books lists
 // @route get /borrowed
 // @access Private
-const getAllBorrowedBooks = asyncHandler(async (requestAnimationFrame, res) => {
+const getAllBorrowedBooks = asyncHandler(async (req, res) => {
 
-    const BorrowedBookRecords = await BorrowedBooks.find().lean();
+    const BorrowedBookRecords = await BorrowedBooks.find()
+    .populate('user', 'username')
+    .populate('book', 'title')
+    .lean();
     if (!BorrowedBookRecords?.length) {
         return res.status(400).json({ message: 'No borrowed books found'});
     }
