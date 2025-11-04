@@ -24,10 +24,9 @@ const getAllBorrowedBooks = asyncHandler(async (req, res) => {
 // @access Private
 const createNewBorrowedBook = asyncHandler(async (req, res) => {
     const { user, book, borrowedDate, dueDate } = req.body;
-
     // Need to get user and book info and find the IDs to save in borrowed books record
 
-    if (!user || !book || !dueDate || !borrowedDate) {
+    if (!user || !book || !dueDate) {
         return res.status(400).json({ message: 'Provide all required fields' });
     }
 
