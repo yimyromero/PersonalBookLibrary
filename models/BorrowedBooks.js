@@ -17,7 +17,7 @@ const borrowSchema = new mongoose.Schema({
     },
     returnDate: { type: Date },
     status: { 
-        type: String, enum: ['borrowed', 'returned'], default: 'borrowed' 
+        type: String, default: 'borrowed' 
     }
 }, {timestamps: true })
 

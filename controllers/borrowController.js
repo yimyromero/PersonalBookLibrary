@@ -65,10 +65,10 @@ const createNewBorrowedBook = asyncHandler(async (req, res) => {
 // @access Private
 
 const updateBorrowedBook = asyncHandler(async (req, res) => {
-    const { id, user, book, dueDate, returnDate, status } = req.body;
+    const { id, user, book, dueDate, status } = req.body;
 
-    if (!id || !user || !book || !dueDate || !returnDate || !status ) {
-        return res.status(400).json({ message: 'Provide all required fields'});
+    if (!id || !user || !book || !dueDate || !status ) {
+        return res.status(400).json({ message: 'Provide all required fields Update'});
     }
 
     const borrowedRecord = await BorrowedBooks.findById(id).exec();
@@ -79,7 +79,7 @@ const updateBorrowedBook = asyncHandler(async (req, res) => {
     borrowedRecord.user = user;
     borrowedRecord.book = book;
     borrowedRecord.dueDate = dueDate;
-    borrowedRecord.returnDate = returnDate;
+    //borrowedRecord.returnDate = returnDate;
     borrowedRecord.status = status;
 
     const updateBorrowedRecord = await borrowedRecord.save();
