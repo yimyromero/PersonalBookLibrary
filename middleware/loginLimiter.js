@@ -3,7 +3,7 @@ const { logEvents } = require("./logger");
 
 const loginLimiter = rateLimit({
 	windowMs: 1 * 60 * 1000,
-	max: 5,
+	limit: 5,
 	message: {
 		message:
 			"Too many login attempts from this IP, please try agin after a 60 second pause",
@@ -15,7 +15,7 @@ const loginLimiter = rateLimit({
 		);
 		res.status(options.statusCode).send(options.message);
 	},
-	standarHeaders: true,
+	standardHeaders: true,
 	legacyHeaders: false,
 });
 
